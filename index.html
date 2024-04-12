@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./index.css">
+</head>
+
+<body>
+    <table id="marketTable">
+    </table>
+
+    <div class="purchaseSection section">
+        <h1>Make a purchase</h1>
+        <div>
+            <select class="stockSelect" name="stock">
+                <option value="0">Select a stock</option>
+            </select>
+            <input id="nbSharesToPurchase" type="number">
+            <input id="makePurchaseBtn" type="submit" value="Make purchase">
+        </div>
+        <span>Final price might change due to rapid market fluctuation.</span>
+    </div>
+    <div class="section">
+        <h1 class="bigHeading-2">Records and Statistics</h1>
+        <div class="stats">
+            <div>
+                <table class="purchaseTable">                    
+                </table>
+            </div>
+            <div>
+                <table class="portfolioTable">
+                </table>
+            </div>
+            <div>
+                <table class="purchaseTable">
+                    <thead>
+                        <tr>
+                            <td colspan="3" class="mediumHeading">Purchase Record</td>
+                        </tr>
+                    </thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Price</th>
+                        <th>Average</th>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</body>
+<script src="./index.js"></script>
+
+</html>
