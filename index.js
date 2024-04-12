@@ -1,3 +1,4 @@
+let isMarketOpen = false;
 let portfolio = {
   investment: 0,
   currentValue: 0,
@@ -79,6 +80,7 @@ const updateTables = () => {
           </tr>`;
   });
   const purchaseTable = document.querySelector(".purchaseTable");
+
   purchaseTable.innerHTML = `
     <tr>
         <td colspan="3" class="mediumHeading">Purchase Record</td>
@@ -88,14 +90,21 @@ const updateTables = () => {
   <th>Share Count</th>
   <th>Average</th>
   </tr>`;
-  portfolio.purchases.forEach(
-    (purchase) =>
-      (purchaseTable.innerHTML += `<tr>
-  <td>${purchase.name}</td>
-  <td>${purchase.nbShares}</td>
-  <td>$${purchase.purchasePrice}</td>
-  </tr>`)
-  );
+
+  if (portfolio.purchases.length === 0) {
+    purchaseTable.innerHTML += `<tr class="noPurchaseEntry"><td colspan="3">No Purchases made</td></tr>`;
+  } else {
+    document.querySelector(".noPurchaseEntry") &&
+      document.querySelector(".noPurchaseEntry").remove();
+    portfolio.purchases.forEach(
+      (purchase) =>
+        (purchaseTable.innerHTML += `<tr>
+      <td>${purchase.name}</td>
+      <td>${purchase.nbShares}</td>
+      <td>$${purchase.purchasePrice}</td>
+      </tr>`)
+    );
+  }
 
   const portfolioTable = document.querySelector(".portfolioTable");
   portfolioTable.innerHTML = `
@@ -110,7 +119,14 @@ const updateTables = () => {
    <tr>
       <td>${portfolio.investment}</td>
       <td>${portfolio.currentValue}</td>
-      <td>${portfolio.change}%</td>
+      <td>${
+        portfolio.investment && portfolio.currentValue
+          ? calculateChangePercentage(
+              portfolio.investment,
+              portfolio.currentValue
+            )
+          : 0
+      }%</td>
   </tr>
   `;
 };
@@ -128,33 +144,70 @@ const loadStocksForPurchase = () => {
   );
 };
 
-setInterval(() => {
-  portfolio.stocks.forEach((stock) => {
-    if (stock.nbShare) {
-      stock.perSharePrice = stock.currMarketPrice;
-    }
-  });
-  const selectedStock =
-    portfolio.stocks[Math.floor(Math.random() * portfolio.stocks.length)];
-  const change =
-    selectedStock && Math.floor(Math.random() * 10) % 2
-      ? "increment"
-      : "decrement";
-  switch (change) {
-    case "increment":
-      selectedStock.currMarketPrice += 0.5;
-      break;
-    case "decrement":
-      if (selectedStock.currMarketPrice !== 0) {
-        selectedStock.currMarketPrice -= 0.5;
+// var startMarket = setInterval(function () {
+//   portfolio.stocks.forEach((stock) => {
+//     if (stock.nbShare) {
+//       stock.perSharePrice = stock.currMarketPrice;
+//     }
+//   });
+//   const selectedStock =
+//     portfolio.stocks[Math.floor(Math.random() * portfolio.stocks.length)];
+//   const change =
+//     selectedStock && Math.floor(Math.random() * 10) % 2
+//       ? "increment"
+//       : "decrement";
+//   switch (change) {
+//     case "increment":
+//       selectedStock.currMarketPrice += 0.5;
+//       break;
+//     case "decrement":
+//       if (selectedStock.currMarketPrice !== 0) {
+//         selectedStock.currMarketPrice -= 0.5;
+//       }
+//       break;
+//   }
+//   if (selectedStock.nbShare) {
+//     selectedStock.perSharePrice = selectedStock.currMarketPrice;
+//   }
+//   marketUpdate(selectedStock.currMarketPrice, selectedStock.name);
+// }, 1000);
+
+const mktBtn = document.querySelector(".mktBtn");
+mktBtn.onclick = () => {
+  if (mktBtn.innerText === "Open Market") {
+    mktBtn.innerText = "Close Market";
+    var startMarket = setInterval(function () {
+      portfolio.stocks.forEach((stock) => {
+        if (stock.nbShare) {
+          stock.perSharePrice = stock.currMarketPrice;
+        }
+      });
+      const selectedStock =
+        portfolio.stocks[Math.floor(Math.random() * portfolio.stocks.length)];
+      const change =
+        selectedStock && Math.floor(Math.random() * 10) % 2
+          ? "increment"
+          : "decrement";
+      switch (change) {
+        case "increment":
+          selectedStock.currMarketPrice += 0.5;
+          break;
+        case "decrement":
+          if (selectedStock.currMarketPrice !== 0) {
+            selectedStock.currMarketPrice -= 0.5;
+          }
+          break;
       }
-      break;
+      if (selectedStock.nbShare) {
+        selectedStock.perSharePrice = selectedStock.currMarketPrice;
+      }
+      marketUpdate(selectedStock.currMarketPrice, selectedStock.name);
+    }, 1000);
+  } else {
+    clearInterval(startMarket);
+    mktBtn.innerText = "Open Market";
   }
-  if (selectedStock.nbShare) {
-    selectedStock.perSharePrice = selectedStock.currMarketPrice;
-  }
-  marketUpdate(selectedStock.currMarketPrice, selectedStock.name);
-}, 1000);
+};
 
 const calculateChangePercentage = (oldPrice, currMarketPrice) => {
   return parseInt(((currMarketPrice - oldPrice) / oldPrice) * 100);
@@ -165,8 +218,9 @@ const marketUpdate = (currMarketPrice, stockname) => {
   stock.change = calculateChangePercentage(stock.openingPrice, currMarketPrice);
   stock.currMarketPrice = currMarketPrice;
   stock.currentValue = stock.currMarketPrice * stock.nbShare;
+  portfolio.currentValue = 0;
   portfolio.stocks.forEach((stock) => {
-    portfolio.currentValue += stock.currentValue
+    portfolio.currentValue += stock.currentValue;
   });
   updateTables();
 };
